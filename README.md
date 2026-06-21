@@ -7,6 +7,8 @@ The project builds two APKs:
 - `vrgame` - the phone placed in mobile VR goggles. It renders a split-screen VR scene and listens for controller packets.
 - `controller` - the second Android phone. It sends aim and action commands over Wi-Fi UDP.
 
+The current VR APK uses OpenGL ES stereo rendering: each eye gets its own perspective camera, with a simple 3D room, table, stations, objects, and head-tracked looking.
+
 ## Ready-to-download APK bundle
 
 A debug APK bundle is committed here:
@@ -29,6 +31,14 @@ The VR phone shows a small "shift room" with three objects and three stations:
 3. Put `ORB` into the green tray.
 
 Use the controller phone touchpad to aim. Press `Grab / Drop` to pick up or release an object.
+
+## VR headset tips
+
+- Set the phone brightness high.
+- Center the phone carefully in the headset so the split line is exactly between the lenses.
+- Adjust lens distance/focus on the headset if it supports that.
+- Keep the VR app in landscape orientation.
+- The HUD is duplicated per eye so it does not stretch across both lenses.
 
 ## Network setup
 
