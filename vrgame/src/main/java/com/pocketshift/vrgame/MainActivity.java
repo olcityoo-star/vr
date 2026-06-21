@@ -6,11 +6,17 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.graphics.Color;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.format.Formatter;
+import android.view.Gravity;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.net.Inet4Address;
 import java.net.NetworkInterface;
@@ -18,6 +24,8 @@ import java.util.Collections;
 
 public final class MainActivity extends Activity implements NetworkReceiver.Listener, SensorEventListener {
     private VrGameView gameView;
+    private TextView leftHud;
+    private TextView rightHud;
     private NetworkReceiver receiver;
     private SensorManager sensorManager;
     private Sensor rotationSensor;
@@ -31,7 +39,8 @@ public final class MainActivity extends Activity implements NetworkReceiver.List
 
         gameView = new VrGameView(this);
         gameView.setNetworkInfo(getDeviceIp(), NetworkReceiver.PORT);
-        setContentView(gameView);
+        setContentView(buildContentView());
+        updateHud();
 
         receiver = new NetworkReceiver(this);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -43,6 +52,7 @@ public final class MainActivity extends Activity implements NetworkReceiver.List
     @Override
     protected void onResume() {
         super.onResume();
+        gameView.onResume();
         receiver.start();
         if (rotationSensor != null) {
             sensorManager.registerListener(this, rotationSensor, SensorManager.SENSOR_DELAY_GAME);
@@ -56,11 +66,13 @@ public final class MainActivity extends Activity implements NetworkReceiver.List
         if (sensorManager != null) {
             sensorManager.unregisterListener(this);
         }
+        gameView.onPause();
     }
 
     @Override
     public void onControllerPacket(ControllerPacket packet) {
         gameView.applyControllerPacket(packet);
+        updateHud();
     }
 
     @Override
@@ -78,6 +90,54 @@ public final class MainActivity extends Activity implements NetworkReceiver.List
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // No calibration UI is needed for this prototype.
+    }
+
+    private FrameLayout buildContentView() {
+        FrameLayout root = new FrameLayout(this);
+        root.addView(gameView, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        LinearLayout hudRow = new LinearLayout(this);
+        hudRow.setOrientation(LinearLayout.HORIZONTAL);
+        hudRow.setPadding(dp(10), dp(8), dp(10), 0);
+        leftHud = createHudText();
+        rightHud = createHudText();
+        hudRow.addView(leftHud, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        hudRow.addView(rightHud, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        FrameLayout.LayoutParams hudParams = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.TOP);
+        root.addView(hudRow, hudParams);
+        return root;
+    }
+
+    private TextView createHudText() {
+        TextView hud = new TextView(this);
+        hud.setTextColor(Color.WHITE);
+        hud.setTextSize(15f);
+        hud.setGravity(Gravity.CENTER_HORIZONTAL);
+        hud.setIncludeFontPadding(false);
+        hud.setShadowLayer(4f, 1f, 1f, Color.BLACK);
+        hud.setBackgroundColor(Color.argb(78, 0, 0, 0));
+        hud.setPadding(dp(6), dp(4), dp(6), dp(5));
+        return hud;
+    }
+
+    private void updateHud() {
+        String text = gameView.getHudText();
+        if (leftHud != null) {
+            leftHud.setText(text);
+        }
+        if (rightHud != null) {
+            rightHud.setText(text);
+        }
+    }
+
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
     }
 
     private String getDeviceIp() {
