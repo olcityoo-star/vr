@@ -30,4 +30,6 @@ with zipfile.ZipFile(zip_file) as archive:
 PY
 fi
 
+chmod +x "$GRADLE_HOME/bin/gradle"
+
 exec "$GRADLE_HOME/bin/gradle" "$@"
