@@ -7,6 +7,19 @@ The project builds two APKs:
 - `vrgame` - the phone placed in mobile VR goggles. It renders a split-screen VR scene and listens for controller packets.
 - `controller` - the second Android phone. It sends aim and action commands over Wi-Fi UDP.
 
+## Ready-to-download APK bundle
+
+A debug APK bundle is committed here:
+
+```text
+downloads/pocket-shift-vr-debug-apks.zip
+```
+
+Open that file on GitHub and press `Download raw file`. The zip contains:
+
+- `PocketShiftVR-vrgame-debug.apk` - install on the phone inside the VR goggles.
+- `PocketShiftVR-controller-debug.apk` - install on the second Android phone.
+
 ## Gameplay
 
 The VR phone shows a small "shift room" with three objects and three stations:
